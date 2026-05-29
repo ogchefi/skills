@@ -1,22 +1,42 @@
 ---
 name: to-prd
-description: Turn the current conversation into a PRD and publish it to the project issue tracker — no interview, just synthesis of what you've already discussed.
-disable-model-invocation: true
+description: Turn the current conversation context into a local Markdown PRD with built-in task tracking. Use when user wants to create a PRD from the current context.
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a PRD. Do NOT interview the user — just synthesize what you already know.
+# To PRD
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+Create a PRD from the current conversation context and codebase understanding. Do NOT interview the user from scratch; synthesize what you already know and ask only for missing details that block writing a useful PRD.
+
+The PRD itself is the default backlog artifact. Create it as Markdown at `.scratch/<feature-slug>/PRD.md`, where `<feature-slug>` is a short kebab-case name for the feature or change. Create the feature directory if needed. Ask before overwriting an existing PRD.
+
+External issue trackers are optional integrations, not the default output. If the user explicitly asks to publish elsewhere, follow the project issue-tracker docs if they exist.
 
 ## Process
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
 
-2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
+2. Sketch out the major modules you will need to build or modify to complete the implementation. Actively look for opportunities to extract deep modules that can be tested in isolation.
 
-Check with the user that these seams match their expectations.
+A deep module (as opposed to a shallow module) is one which encapsulates a lot of functionality in a simple, testable interface which rarely changes.
 
-3. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+Check with the user that these modules match their expectations. Check with the user which modules they want tests written for. Keep this confirmation short; do not restart discovery from scratch.
+
+3. Write the PRD using the template below, then save it to `.scratch/<feature-slug>/PRD.md`.
+
+4. Report the created PRD path and summarize the initial task count.
+
+## Task Tracking Rules
+
+The `## Tasks` table is the canonical task surface for PRDs created by this skill.
+
+- Tasks should be vertical slices: each task delivers verifiable end-to-end behavior, not just work in one layer.
+- New tasks start with status `Not started`.
+- Allowed statuses are exactly: `Not started`, `In progress`, `Completed`, `Needs update`, `Pending removal`.
+- Use stable task IDs in the form `Task 1`, `Task 2`, `Task 3`.
+- Dependencies reference task IDs, or `None`.
+- `Done when` describes externally verifiable completion criteria.
+- `Notes` contains current-state context only. Do not use it as a changelog.
+- Do not create a `## Temporary Update Notes` section in a new PRD. That section is only for `/update-prd` when existing task work needs reconciliation.
 
 <prd-template>
 
@@ -63,6 +83,12 @@ A list of testing decisions that were made. Include:
 - A description of what makes a good test (only test external behavior, not implementation details)
 - Which modules will be tested
 - Prior art for the tests (i.e. similar types of tests in the codebase)
+
+## Tasks
+
+| ID | Task | Status | Done when | Dependencies | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Task 1 | First vertical slice to implement. | Not started | Externally verifiable completion condition. | None | Current-state context, if any. |
 
 ## Out of Scope
 

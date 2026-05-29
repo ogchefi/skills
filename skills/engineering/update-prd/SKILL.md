@@ -5,17 +5,17 @@ description: Update an existing PRD from the current conversation context while 
 
 # Update PRD
 
-Update an existing PRD from current context or explicitly specified tasks. This complements `/to-prd`: `/to-prd` creates and publishes a new PRD to the project issue tracker, while this skill revises an existing PRD without turning it into a changelog.
+Update an existing PRD from current context or explicitly specified tasks. This complements `/to-prd`: `/to-prd` creates a local Markdown PRD with built-in task tracking, while this skill revises an existing PRD without turning it into a changelog.
 
 Do not interview from scratch. Explore the repo and the PRD enough to understand the current state, then ask only when the target PRD, affected task, or requested lifecycle change is ambiguous.
 
-The issue tracker and triage label vocabulary should have been provided to you by `/setup-matt-pocock-skills` when the PRD lives in an issue tracker. If that setup is missing, find it from project docs or ask one blocking question.
+The PRD itself is the default backlog artifact. If the PRD lives in an external issue tracker because the user or project explicitly chose that, preserve that backend and follow the project issue-tracker docs.
 
 ## Process
 
 1. Find the target PRD:
    - Prefer explicit paths, issue links, or PRD titles from the user.
-   - If no target is explicit, search likely PRD locations and issue tracker context.
+   - If no target is explicit, search likely PRD locations, especially `.scratch/*/PRD.md`, then issue tracker context if configured.
    - Ask before updating if multiple plausible PRDs remain.
    - Ask before updating more than one PRD.
    - Ask before touching any file outside the active repo.
@@ -36,35 +36,67 @@ The issue tracker and triage label vocabulary should have been provided to you b
 
 4. Handle PRD task surfaces carefully:
    - Treat PRD-internal tasks, acceptance checklists, task status lists, and status tables as the authoritative task surface by default.
+   - Prefer the canonical `## Tasks` table for PRDs created by `/to-prd`.
+   - If a PRD has no task surface and the user asks for task tracking, add the canonical `## Tasks` table.
    - Touch separate implementation plans only when the user explicitly names them.
    - Recognize common Markdown styles: `- [ ]`, `- [x]`, numbered task lists, acceptance checklist items, and task/status tables.
-   - Preserve the local task style.
+   - Preserve the local task style for legacy PRDs unless the user asks to normalize it.
+
+## Canonical Task Table
+
+For PRDs created by `/to-prd`, use this task table shape exactly:
+
+```md
+## Tasks
+
+| ID | Task | Status | Done when | Dependencies | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Task 1 | Example vertical slice. | Not started | Externally verifiable completion condition. | None | Current-state context, if any. |
+```
+
+Rules:
+
+- Allowed statuses are exactly: `Not started`, `In progress`, `Completed`, `Needs update`, `Pending removal`.
+- Tasks should remain vertical slices: each task delivers verifiable end-to-end behavior, not just work in one layer.
+- Preserve stable task IDs. Do not renumber tasks unless the user explicitly asks.
+- New task IDs use the next unused `Task N`.
+- Dependencies reference task IDs, or `None`.
+- `Done when` describes externally verifiable completion criteria.
+- `Notes` contains current-state context only. Do not use it as a changelog.
 
 ## Task Lifecycle Rules
 
 When adding a new task:
 
 - Add it cleanly as incomplete.
+- For the canonical task table, append it with the next unused task ID and status `Not started`.
 - Do not add a temporary update note.
 
 When editing an existing task:
 
 - Mark it incomplete.
 - Use `Needs update` for status-table or status-list PRDs.
+- For the canonical task table, keep the same task ID, rewrite the current task fields, and set status `Needs update`.
 - Remove or rewrite stale nested completion details so they express current requirements, not past evidence.
 - Add one temporary update note for that task.
+
+When starting work on a task:
+
+- Set status `In progress` only when explicit user instruction, named task results, or current-chat implementation evidence says work has started.
+- Do not add a temporary update note just because work started.
 
 When removing a task:
 
 - Do not delete it immediately if related implementation may still exist.
 - Mark it incomplete and `Pending removal`.
+- For the canonical task table, keep the task row, set status `Pending removal`, and describe the cleanup condition in `Notes` or the temporary note.
 - Add one temporary update note with the cleanup condition.
 - Delete the task only after explicit current-chat evidence, named task results, or user instruction says the related implementation cleanup is complete.
 
 When cleanup is complete:
 
 - Remove the matching temporary note.
-- Mark edited tasks complete only when explicit evidence says the updated work is done.
+- Mark edited tasks complete only when explicit user instruction, named task results, or current-chat implementation evidence says the updated work is done.
 - Delete pending-removal tasks only when explicit evidence says implementation cleanup is done.
 - Remove the temporary section entirely when no notes remain.
 
@@ -114,6 +146,6 @@ If the PRD target is clear but task mapping is ambiguous, you may still cleanly 
 Report:
 
 - Which PRD was updated.
-- Which tasks were added, reopened, marked `Pending removal`, completed, or deleted.
+- Which tasks were added, moved to `In progress`, marked `Needs update`, marked `Pending removal`, completed, or deleted.
 - Whether `Temporary Update Notes` were added, changed, or cleaned up.
 - Any ambiguity that still needs user confirmation.

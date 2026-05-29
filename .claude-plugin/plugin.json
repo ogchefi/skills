@@ -11,6 +11,7 @@
     "./skills/engineering/to-issues",
     "./skills/engineering/to-prd",
     "./skills/engineering/update-prd",
+    "./skills/engineering/implement-tasks",
     "./skills/engineering/prototype",
     "./skills/engineering/domain-modeling",
     "./skills/engineering/codebase-design",

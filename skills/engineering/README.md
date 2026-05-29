@@ -12,8 +12,9 @@ Reachable only when you type them (`disable-model-invocation: true`).
 - **[improve-codebase-architecture](./improve-codebase-architecture/SKILL.md)** — Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
 - **[setup-matt-pocock-skills](./setup-matt-pocock-skills/SKILL.md)** — Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo.
 - **[to-issues](./to-issues/SKILL.md)** — Break any plan, spec, or PRD into independently-grabbable issues using vertical slices.
-- **[to-prd](./to-prd/SKILL.md)** — Turn the current conversation into a PRD and publish it to the issue tracker.
+- **[to-prd](./to-prd/SKILL.md)** — Turn the current conversation into a local Markdown PRD with a tracked task table.
 - **[update-prd](./update-prd/SKILL.md)** — Revise an existing PRD cleanly from current context, keeping it a source of truth rather than a changelog.
+- **[implement-tasks](./implement-tasks/SKILL.md)** — Execute a PRD's tracked tasks (or a Markdown task plan) end-to-end — implement, review, validate, and commit per task.
 - **[prototype](./prototype/SKILL.md)** — Build a throwaway prototype — a runnable terminal app for state/logic questions, or several toggleable UI variations.
 
 ## Model-invoked
